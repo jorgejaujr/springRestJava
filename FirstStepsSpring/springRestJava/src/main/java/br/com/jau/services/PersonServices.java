@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.jau.Model.Person;
+import br.com.jau.data.vo.v1.PersonVO;
 import br.com.jau.exceptions.ResourceNotFoundException;
+import br.com.jau.mapper.DozerMapper;
 import br.com.jau.repositories.PersonRepository;
 
 @Service
@@ -20,20 +22,32 @@ public class PersonServices {
 	@Autowired
 	PersonRepository repository;
 	
-	public List<Person> findAll() {
+	public List<PersonVO> findAll() {
 		
 		logger.info("Finding all people");
 		
-		return repository.findAll() ;
+		return DozerMapper.parseListObjects(repository.findAll(), PersonVO.class) ;
 		
 	}
-	//Ponto de recuperacao dos dados via base de dados
-	public Person create(Person person) {
+	
+    public PersonVO findById(Long id) {
 		
-		logger.info("Creating one person");
-		
+		logger.info("Finding one person");
 		 
-		return repository.save(person);
+		var entity =  repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("No records found for this Id")); 
+		return DozerMapper.parseObject(entity, PersonVO.class);
+		
+	}
+	
+	public PersonVO create(PersonVO person) {
+		
+		logger.info("Creating one person");	
+		
+		var entity = DozerMapper.parseObject(person, Person.class);
+		
+		var vo = DozerMapper.parseObject(repository.save(entity), PersonVO.class);
+		 
+		return vo;
 	}
 	
 	public void delete(Long id) {
@@ -44,7 +58,7 @@ public class PersonServices {
 		repository.delete(entity);
 		
 	}
-	public Person update(Person person) {
+	public PersonVO update(PersonVO person) {
 		
 		logger.info("Updating one person");
 		
@@ -56,17 +70,11 @@ public class PersonServices {
 		 entity.setGender(person.getGender());
 		
 		 
-		return repository.save(person);
+		var vo =  DozerMapper.parseObject(repository.save(entity), PersonVO.class);
+		
+		return vo;
 	}
 	
-	public Person findById(Long id) {
-		
-		logger.info("Finding one person");
-		 
-		 /*Ponto de chamada de banco de dados*/
 	
-		 return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("No records found for this Id"));
-		
-	}
 
 }
