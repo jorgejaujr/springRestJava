@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 
 import br.com.jau.Model.Person;
 import br.com.jau.data.vo.v1.PersonVO;
+import br.com.jau.data.vo.v2.PersonVOV2;
 import br.com.jau.exceptions.ResourceNotFoundException;
 import br.com.jau.mapper.DozerMapper;
+import br.com.jau.mapper.custom.PersonMapper;
 import br.com.jau.repositories.PersonRepository;
 
 @Service
@@ -21,6 +23,9 @@ public class PersonServices {
 	
 	@Autowired
 	PersonRepository repository;
+	
+	@Autowired
+	PersonMapper mapper;
 	
 	public List<PersonVO> findAll() {
 		
@@ -50,6 +55,16 @@ public class PersonServices {
 		return vo;
 	}
 	
+	public PersonVOV2 createV2(PersonVOV2 person) {
+        logger.info("Creating one person with V2");	
+		
+		var entity = mapper.convertVoToEntity(person);
+		
+		var vo = mapper.convertEntityToVo(repository.save(entity));
+		 
+		return vo;
+	}
+	
 	public void delete(Long id) {
 		
 		logger.info("Deleting one person");
@@ -74,6 +89,8 @@ public class PersonServices {
 		
 		return vo;
 	}
+
+	
 	
 	
 
