@@ -3,13 +3,29 @@ package br.com.jau.mapper;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.dozermapper.core.DozerBeanMapper;
-import com.github.dozermapper.core.DozerBeanMapperBuilder;
-import com.github.dozermapper.core.Mapper;
+import org.modelmapper.ModelMapper;
+
+import br.com.jau.Model.Person;
+import br.com.jau.data.vo.v1.PersonVO;
+
+//import com.github.dozermapper.core.DozerBeanMapperBuilder;
+//import com.github.dozermapper.core.Mapper;
 
 public class DozerMapper {
 	
-	private static Mapper mapper = DozerBeanMapperBuilder.buildDefault();
+	private static ModelMapper mapper = new ModelMapper();
+	
+	static { 
+		mapper.createTypeMap(
+			Person.class, 
+			PersonVO.class)
+		.addMapping(Person::getID, PersonVO::setKey);
+		
+		mapper.createTypeMap(
+			PersonVO.class, 
+			Person.class)
+		.addMapping(PersonVO::getKey, Person::setID);
+	}
 	
 	public static <O,D> D parseObject(O origin, Class<D> destination) {
 		return mapper.map(origin, destination);
